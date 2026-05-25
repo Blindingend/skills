@@ -16,6 +16,7 @@ class SkillLayoutTests(unittest.TestCase):
     def test_agent_work_tracker_is_sub_skill(self):
         self.assertTrue((ROOT / "skills/agent-work-tracker/SKILL.md").is_file())
         self.assertTrue((ROOT / "skills/agent-work-tracker/scripts/record_work.py").is_file())
+        self.assertTrue((ROOT / "skills/agent-work-tracker/config.example.toml").is_file())
         self.assertFalse((ROOT / "agent-work-tracker/SKILL.md").exists())
 
 

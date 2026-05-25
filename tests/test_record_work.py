@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -183,6 +184,8 @@ class RecordWorkTests(unittest.TestCase):
 
             exit_code = module.main(
                 [
+                    "--config",
+                    str(Path(tmp) / "missing-config.toml"),
                     "--vault-root",
                     str(vault),
                     "--today",
@@ -201,6 +204,152 @@ class RecordWorkTests(unittest.TestCase):
                     / "Note/Work/TianYan/AgentTracking/2026-05-22 Agent Tracking.md"
                 ).exists()
             )
+
+    def test_cli_uses_config_file_for_destinations_and_git_policy(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            vault = root / "vault"
+            config_path = root / "config.toml"
+            config_path.write_text(
+                '\n'.join(
+                    [
+                        "[obsidian]",
+                        'vault_root = "%s"' % vault,
+                        'agent_tracking_dir = "Work/AgentTracking"',
+                        'project_doc_dir = "Work/Projects"',
+                        "",
+                        "[git]",
+                        "sync = false",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            payload = json.dumps(
+                {
+                    "title": "配置文件测试",
+                    "summary": "验证配置文件决定写入位置。",
+                },
+                ensure_ascii=False,
+            )
+            stdin = Mock()
+            stdin.read.return_value = payload
+
+            exit_code = module.main(
+                [
+                    "--config",
+                    str(config_path),
+                    "--today",
+                    "2026-05-22",
+                    "--recorded-at",
+                    "2026-05-22 18:30",
+                ],
+                stdin=stdin,
+            )
+
+            self.assertEqual(exit_code, 0)
+            self.assertTrue((vault / "Work/AgentTracking/2026-05-22 Agent Tracking.md").exists())
+
+    def test_cli_arguments_override_config_file_destinations(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config_vault = root / "config-vault"
+            cli_vault = root / "cli-vault"
+            config_path = root / "config.toml"
+            config_path.write_text(
+                '\n'.join(
+                    [
+                        "[obsidian]",
+                        'vault_root = "%s"' % config_vault,
+                        'agent_tracking_dir = "Configured/Tracking"',
+                        "",
+                        "[git]",
+                        "sync = false",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            payload = json.dumps(
+                {
+                    "title": "CLI 覆盖测试",
+                    "summary": "验证 CLI 参数优先于配置文件。",
+                },
+                ensure_ascii=False,
+            )
+            stdin = Mock()
+            stdin.read.return_value = payload
+
+            exit_code = module.main(
+                [
+                    "--config",
+                    str(config_path),
+                    "--vault-root",
+                    str(cli_vault),
+                    "--tracking-dir",
+                    str(cli_vault / "Cli/Tracking"),
+                    "--today",
+                    "2026-05-22",
+                    "--recorded-at",
+                    "2026-05-22 18:30",
+                ],
+                stdin=stdin,
+            )
+
+            self.assertEqual(exit_code, 0)
+            self.assertTrue((cli_vault / "Cli/Tracking/2026-05-22 Agent Tracking.md").exists())
+            self.assertFalse((config_vault / "Configured/Tracking/2026-05-22 Agent Tracking.md").exists())
+
+    def test_default_config_path_uses_xdg_config_home(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            xdg_home = root / "xdg"
+            vault = root / "vault"
+            config_dir = xdg_home / "yx-workflow"
+            config_dir.mkdir(parents=True)
+            (config_dir / "config.toml").write_text(
+                '\n'.join(
+                    [
+                        "[obsidian]",
+                        'vault_root = "%s"' % vault,
+                        'agent_tracking_dir = "Tracking"',
+                        "",
+                        "[git]",
+                        "sync = false",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            payload = json.dumps(
+                {
+                    "title": "默认配置路径测试",
+                    "summary": "验证 XDG_CONFIG_HOME 下的配置会被读取。",
+                },
+                ensure_ascii=False,
+            )
+            stdin = Mock()
+            stdin.read.return_value = payload
+            old_xdg = os.environ.get("XDG_CONFIG_HOME")
+            os.environ["XDG_CONFIG_HOME"] = str(xdg_home)
+            try:
+                exit_code = module.main(
+                    [
+                        "--today",
+                        "2026-05-22",
+                        "--recorded-at",
+                        "2026-05-22 18:30",
+                    ],
+                    stdin=stdin,
+                )
+            finally:
+                if old_xdg is None:
+                    os.environ.pop("XDG_CONFIG_HOME", None)
+                else:
+                    os.environ["XDG_CONFIG_HOME"] = old_xdg
+
+            self.assertEqual(exit_code, 0)
+            self.assertTrue((vault / "Tracking/2026-05-22 Agent Tracking.md").exists())
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@
 │       ├── SKILL.md
 │       ├── agents/
 │       │   └── openai.yaml
+│       ├── config.example.toml
 │       └── scripts/
 │           └── record_work.py
 └── tests/
@@ -44,7 +45,26 @@
 python3 /home/yanxin/.codex/skills/yx-workflow/skills/agent-work-tracker/scripts/record_work.py
 ```
 
-脚本默认执行 Obsidian 仓库同步流程：
+默认配置路径：
+
+```text
+~/.config/yx-workflow/config.toml
+```
+
+可以从模板复制：
+
+```bash
+mkdir -p ~/.config/yx-workflow
+cp /home/yanxin/.codex/skills/yx-workflow/skills/agent-work-tracker/config.example.toml ~/.config/yx-workflow/config.toml
+```
+
+配置优先级：
+
+```text
+CLI 参数 > 环境变量 > ~/.config/yx-workflow/config.toml > 内置默认值
+```
+
+启用 `git.sync` 时，脚本执行 Obsidian 仓库同步流程：
 
 1. `git pull --rebase --autostash`
 2. 写入 AgentTracking 和匹配到的项目文档

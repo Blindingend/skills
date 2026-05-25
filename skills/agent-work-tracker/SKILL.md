@@ -20,6 +20,52 @@ Use this skill at the end of any substantial completed task, including:
 
 Do not use it for short Q&A, tiny command outputs, or abandoned work with no useful result unless the user explicitly asks to record it.
 
+## Configuration
+
+The script reads configuration in this precedence order:
+
+```text
+CLI arguments > environment variables > config.toml > built-in defaults
+```
+
+Default config path:
+
+```text
+~/.config/yx-workflow/config.toml
+```
+
+Override config path:
+
+```bash
+python3 /home/yanxin/.codex/skills/yx-workflow/skills/agent-work-tracker/scripts/record_work.py --config /path/to/config.toml
+```
+
+Use `config.example.toml` as the template for a new machine.
+
+Supported config:
+
+```toml
+[obsidian]
+vault_root = "/home/yanxin/personal/ObsidianNotes"
+agent_tracking_dir = "Note/Work/TianYan/AgentTracking"
+project_doc_dir = "Note/Work/TianYan/项目文档"
+weekly_report_dir = "Note/Work/TianYan/工作周报"
+
+[git]
+sync = true
+commit_message = "docs: 记录 agent 工作进展"
+```
+
+Supported environment variables:
+
+- `YX_WORKFLOW_CONFIG`
+- `AGENT_WORK_TRACKER_VAULT`
+- `AGENT_WORK_TRACKER_TRACKING_DIR`
+- `AGENT_WORK_TRACKER_PROJECT_DOC_DIR`
+- `AGENT_WORK_TRACKER_WEEKLY_REPORT_DIR`
+- `AGENT_WORK_TRACKER_GIT_SYNC`
+- `AGENT_WORK_TRACKER_COMMIT_MESSAGE`
+
 ## Default Paths
 
 - Obsidian vault: `/home/yanxin/personal/ObsidianNotes`
@@ -69,7 +115,7 @@ python3 /home/yanxin/.codex/skills/yx-workflow/skills/agent-work-tracker/scripts
 JSON
 ```
 
-The script performs the required sync sequence:
+When Git sync is enabled, the script performs the required sync sequence:
 
 1. `git pull --rebase --autostash`
 2. write the weekly AgentTracking file and a matched existing project document

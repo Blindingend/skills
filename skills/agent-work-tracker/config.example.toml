@@ -1,0 +1,9 @@
+[obsidian]
+vault_root = "/home/yanxin/personal/ObsidianNotes"
+agent_tracking_dir = "Note/Work/TianYan/AgentTracking"
+project_doc_dir = "Note/Work/TianYan/项目文档"
+weekly_report_dir = "Note/Work/TianYan/工作周报"
+
+[git]
+sync = true
+commit_message = "docs: 记录 agent 工作进展"
