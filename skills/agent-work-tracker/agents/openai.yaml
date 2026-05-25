@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Work Tracker"
+  short_description: "Record completed agent work into Obsidian"
+  default_prompt: "Use $yx-workflow and route to agent-work-tracker to record this completed task into AgentTracking and matched project notes."

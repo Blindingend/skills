@@ -1,0 +1,5 @@
+interface:
+  display_name: "YX Workflow"
+  short_description: "Route Yanxin's reusable Codex workflows"
+  default_prompt: "Use $yx-workflow to route this task to the right Yanxin workflow skill."
+

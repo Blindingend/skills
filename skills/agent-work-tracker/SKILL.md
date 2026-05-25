@@ -55,14 +55,14 @@ Optional fields:
 Example:
 
 ```bash
-python3 /home/yanxin/.codex/skills/agent-work-tracker/scripts/record_work.py <<'JSON'
+python3 /home/yanxin/.codex/skills/yx-workflow/skills/agent-work-tracker/scripts/record_work.py <<'JSON'
 {
   "title": "完成 Agent 工作追踪 skill",
   "status": "completed",
   "repo": "/home/yanxin/personal/skills",
   "project": "AgentTracking",
   "summary": "新增 agent-work-tracker skill、记录脚本、测试和全局触发指令。",
-  "outputs": ["agent-work-tracker/SKILL.md", "agent-work-tracker/scripts/record_work.py"],
+  "outputs": ["skills/agent-work-tracker/SKILL.md", "skills/agent-work-tracker/scripts/record_work.py"],
   "verification": ["python3 -m unittest discover -s tests -v"],
   "next_steps": ["重启 Codex 以加载新 skill"]
 }
@@ -102,4 +102,3 @@ Use the existing report style:
 - `## 本周工作总结`
 
 Keep raw task details in AgentTracking. The weekly report should group work by project/theme and use concise outcome-focused bullets.
-
