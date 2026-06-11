@@ -10,13 +10,28 @@
 ├── agents/
 │   └── openai.yaml
 ├── skills/
-│   └── agent-work-tracker/
+│   ├── agent-work-tracker/
+│   │   ├── SKILL.md
+│   │   ├── agents/
+│   │   │   └── openai.yaml
+│   │   ├── config.example.toml
+│   │   └── scripts/
+│   │       └── record_work.py
+│   ├── conventional-commit-zh/
+│   │   ├── SKILL.md
+│   │   └── agents/
+│   │       └── openai.yaml
+│   ├── dev-machine-bootstrap/
 │       ├── SKILL.md
 │       ├── agents/
 │       │   └── openai.yaml
-│       ├── config.example.toml
+│       ├── assets/
+│       ├── references/
 │       └── scripts/
-│           └── record_work.py
+│   └── orchestrated-worktree-implementation/
+│       ├── SKILL.md
+│       └── agents/
+│           └── openai.yaml
 └── tests/
     ├── test_record_work.py
     └── test_skill_layout.py
@@ -73,6 +88,47 @@ CLI 参数 > 环境变量 > ~/.config/yx-workflow/config.toml > 内置默认值
 5. `git pull --rebase --autostash`
 6. `git push`
 
+### conventional-commit-zh
+
+路径：`skills/conventional-commit-zh/`
+
+用途：
+
+- 基于 staged diff 或工作区 diff 草拟 Conventional Commits 消息。
+- 保持 `type` 和可选 `scope` 为英文，标题和正文使用中文。
+- 根据仓库最近提交历史对齐 scope、标题详略和是否保留正文。
+- 在改动意图混杂时，提示拆分 commit。
+
+### dev-machine-bootstrap
+
+路径：`skills/dev-machine-bootstrap/`
+
+用途：
+
+- 检查本机或 SSH 目标机器的 Linux developer terminal 环境。
+- 规划或执行 zsh、tmux、git、pixi、alias 等基础开发环境 bootstrap。
+- 分类可复用 dotfiles，避免迁移 token、proxy、绝对路径和机器相关配置。
+- 生成安全的 zshrc baseline，并把机器特定内容放入本地 `.local` 配置。
+
+常用脚本：
+
+```bash
+skills/dev-machine-bootstrap/scripts/inspect_host.sh localhost
+skills/dev-machine-bootstrap/scripts/plan_bootstrap.sh localhost
+skills/dev-machine-bootstrap/scripts/apply_bootstrap.sh --mode user --dry-run localhost
+```
+
+### orchestrated-worktree-implementation
+
+路径：`skills/orchestrated-worktree-implementation/`
+
+用途：
+
+- 执行已经设计好的多步骤编码任务或实现计划。
+- 主 agent 负责规划、subagent 调度、全局 review、合并验收和清理。
+- subagent 在独立 worktree/branch 中实现、commit、push，避免污染当前 worktree。
+- review 通过后才合并；不通过则给出明确标准继续迭代。
+
 ## 安装方式
 
 推荐把整个仓库作为总入口 skill 软链到 Codex skills 目录：
@@ -122,4 +178,7 @@ python3 -m py_compile skills/agent-work-tracker/scripts/record_work.py
 ```bash
 python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills
 python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/agent-work-tracker
+python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/conventional-commit-zh
+python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/dev-machine-bootstrap
+python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/orchestrated-worktree-implementation
 ```

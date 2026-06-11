@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dev Machine Bootstrap"
+  short_description: "Plan safe Linux dev bootstrap."
+  default_prompt: "Inspect a local or remote Linux machine, classify reusable dotfiles, and plan or apply a safe bootstrap for shell, tmux, git, and pixi."

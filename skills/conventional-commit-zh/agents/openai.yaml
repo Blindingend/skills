@@ -1,0 +1,4 @@
+interface:
+  display_name: "Conventional Commit 中文"
+  short_description: "按规范与仓库风格生成中文 commit message"
+  default_prompt: "Use $conventional-commit-zh to draft a Conventional Commit message with a Chinese title and body based on this repository history and diff."

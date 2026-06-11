@@ -19,6 +19,30 @@ class SkillLayoutTests(unittest.TestCase):
         self.assertTrue((ROOT / "skills/agent-work-tracker/config.example.toml").is_file())
         self.assertFalse((ROOT / "agent-work-tracker/SKILL.md").exists())
 
+    def test_conventional_commit_zh_is_sub_skill(self):
+        skill = ROOT / "skills/conventional-commit-zh"
+
+        self.assertTrue((skill / "SKILL.md").is_file())
+        self.assertTrue((skill / "agents/openai.yaml").is_file())
+        self.assertFalse((ROOT / "conventional-commit-zh/SKILL.md").exists())
+
+    def test_dev_machine_bootstrap_is_sub_skill(self):
+        skill = ROOT / "skills/dev-machine-bootstrap"
+
+        self.assertTrue((skill / "SKILL.md").is_file())
+        self.assertTrue((skill / "scripts/inspect_host.sh").is_file())
+        self.assertTrue((skill / "scripts/plan_bootstrap.sh").is_file())
+        self.assertTrue((skill / "scripts/apply_bootstrap.sh").is_file())
+        self.assertTrue((skill / "assets/tmux.conf").is_file())
+        self.assertFalse((ROOT / "dev-machine-bootstrap/SKILL.md").exists())
+
+    def test_orchestrated_worktree_implementation_is_sub_skill(self):
+        skill = ROOT / "skills/orchestrated-worktree-implementation"
+
+        self.assertTrue((skill / "SKILL.md").is_file())
+        self.assertTrue((skill / "agents/openai.yaml").is_file())
+        self.assertFalse((ROOT / "orchestrated-worktree-implementation/SKILL.md").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

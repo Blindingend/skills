@@ -1,0 +1,4 @@
+interface:
+  display_name: "Orchestrated Worktree Implementation"
+  short_description: "Coordinate subagents in worktrees"
+  default_prompt: "Use orchestrated-worktree-implementation to implement this planned coding task with subagents in isolated worktrees, then review, merge, verify, and clean up safely."
