@@ -7,3 +7,4 @@ weekly_report_dir = "Note/Work/TianYan/工作周报"
 [git]
 sync = true
 commit_message = "docs: 记录 agent 工作进展"
+dirty_target_policy = "append_tracking_skip_project"

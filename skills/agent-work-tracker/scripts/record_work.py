@@ -17,6 +17,12 @@ DEFAULT_TRACKING_REL = Path("Note/Work/TianYan/AgentTracking")
 DEFAULT_PROJECT_DOC_REL = Path("Note/Work/TianYan/项目文档")
 DEFAULT_WEEKLY_REPORT_REL = Path("Note/Work/TianYan/工作周报")
 COMMIT_MESSAGE = "docs: 记录 agent 工作进展"
+DIRTY_POLICY_APPEND_TRACKING_SKIP_PROJECT = "append_tracking_skip_project"
+DIRTY_POLICY_STRICT = "strict"
+DIRTY_TARGET_POLICIES = {
+    DIRTY_POLICY_APPEND_TRACKING_SKIP_PROJECT,
+    DIRTY_POLICY_STRICT,
+}
 
 
 class WorkRecord:
@@ -91,6 +97,7 @@ class TrackerConfig:
         weekly_report_dir: Optional[Path] = None,
         git_sync: bool = True,
         commit_message: str = COMMIT_MESSAGE,
+        dirty_target_policy: str = DIRTY_POLICY_APPEND_TRACKING_SKIP_PROJECT,
     ) -> None:
         self.vault_root = vault_root
         self.tracking_dir = tracking_dir or vault_root / DEFAULT_TRACKING_REL
@@ -98,6 +105,7 @@ class TrackerConfig:
         self.weekly_report_dir = weekly_report_dir or vault_root / DEFAULT_WEEKLY_REPORT_REL
         self.git_sync = git_sync
         self.commit_message = commit_message
+        self.dirty_target_policy = dirty_target_policy
 
 
 def clean_scalar(value: Any) -> str:
@@ -272,39 +280,132 @@ def rel_paths(repo: Path, paths: Sequence[Path]) -> List[str]:
     return [str(path.resolve().relative_to(repo.resolve())) for path in paths]
 
 
+def git_status_for_paths(repo: Path, target_files: Sequence[Path], git: SubprocessGit) -> str:
+    if not target_files:
+        return ""
+    paths = rel_paths(repo, target_files)
+    result = git.run(
+        repo,
+        ["-c", "core.quotePath=false", "status", "--porcelain", "--"] + paths,
+        capture_output=True,
+    )
+    return (result.stdout or "").strip()
+
+
+def dirty_paths_from_status(output: str) -> List[str]:
+    paths = []
+    for raw_line in output.splitlines():
+        if not raw_line.strip():
+            continue
+        path = raw_line[3:] if len(raw_line) > 3 else raw_line.strip()
+        if " -> " in path:
+            path = path.rsplit(" -> ", 1)[1]
+        paths.append(path)
+    return paths
+
+
 def ensure_targets_clean(repo: Path, target_files: Sequence[Path], git: Optional[SubprocessGit] = None) -> None:
     if not target_files:
         return
     git = git or SubprocessGit()
-    paths = rel_paths(repo, target_files)
-    result = git.run(repo, ["status", "--porcelain", "--"] + paths, capture_output=True)
-    output = (result.stdout or "").strip()
+    output = git_status_for_paths(repo, target_files, git)
     if output:
         raise RuntimeError("target files already have local changes:\n%s" % output)
 
 
+def validate_dirty_target_policy(value: str) -> str:
+    policy = clean_scalar(value) or DIRTY_POLICY_APPEND_TRACKING_SKIP_PROJECT
+    if policy not in DIRTY_TARGET_POLICIES:
+        raise ValueError(
+            "invalid dirty target policy %s; expected one of: %s"
+            % (policy, ", ".join(sorted(DIRTY_TARGET_POLICIES)))
+        )
+    return policy
+
+
+def project_doc_status_for(project_doc: Optional[Path], skipped_dirty: bool) -> str:
+    if project_doc is None:
+        return "not_matched"
+    return "skipped_dirty" if skipped_dirty else "updated"
+
+
+def resolve_write_targets(
+    repo: Path,
+    tracking_file: Path,
+    project_doc: Optional[Path],
+    git: SubprocessGit,
+    dirty_target_policy: str,
+) -> Dict[str, Any]:
+    target_files = [tracking_file]
+    if project_doc is not None:
+        target_files.append(project_doc)
+
+    policy = validate_dirty_target_policy(dirty_target_policy)
+    if policy == DIRTY_POLICY_STRICT:
+        ensure_targets_clean(repo, target_files, git=git)
+        return {
+            "target_files": target_files,
+            "write_project_doc": project_doc is not None,
+            "project_doc_status": project_doc_status_for(project_doc, skipped_dirty=False),
+        }
+
+    output = git_status_for_paths(repo, target_files, git)
+    dirty_paths = set(dirty_paths_from_status(output))
+    write_targets = [tracking_file]
+    skip_project_doc = False
+    if project_doc is not None:
+        project_rel = rel_paths(repo, [project_doc])[0]
+        skip_project_doc = project_rel in dirty_paths
+        if not skip_project_doc:
+            write_targets.append(project_doc)
+
+    return {
+        "target_files": write_targets,
+        "write_project_doc": project_doc is not None and not skip_project_doc,
+        "project_doc_status": project_doc_status_for(project_doc, skipped_dirty=skip_project_doc),
+    }
+
+
 def git_sync_write_commit_push(
     vault_root: Path,
-    target_files: Sequence[Path],
+    tracking_file: Path,
+    project_doc: Optional[Path],
     write_fn,
     git: Optional[SubprocessGit] = None,
     commit_message: str = COMMIT_MESSAGE,
-) -> str:
+    dirty_target_policy: str = DIRTY_POLICY_APPEND_TRACKING_SKIP_PROJECT,
+) -> Dict[str, str]:
     git = git or SubprocessGit()
     git.run(vault_root, ["pull", "--rebase", "--autostash"])
-    ensure_targets_clean(vault_root, target_files, git=git)
-    write_fn()
+    target_plan = resolve_write_targets(
+        vault_root,
+        tracking_file,
+        project_doc,
+        git=git,
+        dirty_target_policy=dirty_target_policy,
+    )
+    write_fn(target_plan["write_project_doc"])
 
-    paths = rel_paths(vault_root, target_files)
+    paths = rel_paths(vault_root, target_plan["target_files"])
     git.run(vault_root, ["add", "--"] + paths)
     diff = git.run(vault_root, ["diff", "--cached", "--quiet"], check=False)
     if diff.returncode == 0:
-        return "no_changes"
+        return {
+            "status": "no_changes",
+            "project_doc_status": target_plan["project_doc_status"],
+        }
 
     git.run(vault_root, ["commit", "-m", commit_message])
     git.run(vault_root, ["pull", "--rebase", "--autostash"])
     git.run(vault_root, ["push"])
-    return "committed"
+    return {
+        "status": "committed",
+        "project_doc_status": target_plan["project_doc_status"],
+    }
+
+
+def no_git_project_doc_status(project_doc: Optional[Path]) -> str:
+    return "updated" if project_doc is not None else "not_matched"
 
 
 def record_workflow(
@@ -317,6 +418,7 @@ def record_workflow(
     git: Optional[SubprocessGit] = None,
     use_git: bool = True,
     commit_message: str = COMMIT_MESSAGE,
+    dirty_target_policy: str = DIRTY_POLICY_APPEND_TRACKING_SKIP_PROJECT,
 ) -> Dict[str, Any]:
     record = WorkRecord.from_mapping(payload)
     today = today or date.today()
@@ -327,31 +429,33 @@ def record_workflow(
     tracking_file = tracking_file_for(tracking_dir, week_end)
     project_doc = find_project_doc(record.project, project_doc_dir)
 
-    target_files = [tracking_file]
-    if project_doc is not None:
-        target_files.append(project_doc)
-
-    def write_notes() -> None:
+    def write_notes(write_project_doc: bool = True) -> None:
         append_tracking_entry(tracking_file, record, recorded_at=recorded_at, week_end=week_end)
-        if project_doc is not None:
+        if project_doc is not None and write_project_doc:
             append_project_progress(project_doc, record, recorded_at, tracking_file)
 
     if use_git:
-        status = git_sync_write_commit_push(
+        sync_result = git_sync_write_commit_push(
             vault_root,
-            target_files,
+            tracking_file,
+            project_doc,
             write_notes,
             git=git,
             commit_message=commit_message,
+            dirty_target_policy=dirty_target_policy,
         )
+        status = sync_result["status"]
+        project_doc_status = sync_result["project_doc_status"]
     else:
         write_notes()
         status = "written"
+        project_doc_status = no_git_project_doc_status(project_doc)
 
     return {
         "status": status,
         "tracking_file": str(tracking_file),
         "project_doc": str(project_doc) if project_doc is not None else None,
+        "project_doc_status": project_doc_status,
     }
 
 
@@ -487,6 +591,12 @@ def resolve_config(args: argparse.Namespace) -> TrackerConfig:
         or clean_scalar(git_config.get("commit_message"))
         or COMMIT_MESSAGE
     )
+    dirty_target_policy = validate_dirty_target_policy(
+        clean_scalar(args.dirty_target_policy)
+        or clean_scalar(env_value("AGENT_WORK_TRACKER_DIRTY_TARGET_POLICY"))
+        or clean_scalar(git_config.get("dirty_target_policy"))
+        or DIRTY_POLICY_APPEND_TRACKING_SKIP_PROJECT
+    )
 
     return TrackerConfig(
         vault_root=vault_root,
@@ -495,6 +605,7 @@ def resolve_config(args: argparse.Namespace) -> TrackerConfig:
         weekly_report_dir=weekly_report_dir,
         git_sync=git_sync,
         commit_message=commit_message,
+        dirty_target_policy=dirty_target_policy,
     )
 
 
@@ -516,6 +627,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--today", default=None, help="YYYY-MM-DD override for tests or backfills.")
     parser.add_argument("--recorded-at", default=None, help="Displayed timestamp, e.g. 2026-05-22 18:30.")
     parser.add_argument("--no-git", action="store_true", help="Write files without pull/commit/push.")
+    parser.add_argument(
+        "--dirty-target-policy",
+        choices=sorted(DIRTY_TARGET_POLICIES),
+        default=None,
+        help="How to handle target files that already have local changes before writing.",
+    )
     return parser
 
 
@@ -533,6 +650,7 @@ def main(argv: Optional[Sequence[str]] = None, stdin=sys.stdin) -> int:
         recorded_at=args.recorded_at,
         use_git=config.git_sync,
         commit_message=config.commit_message,
+        dirty_target_policy=config.dirty_target_policy,
     )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0

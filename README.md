@@ -86,11 +86,14 @@ CLI 参数 > 环境变量 > ~/.config/yx-workflow/config.toml > 内置默认值
 启用 `git.sync` 时，脚本执行 Obsidian 仓库同步流程：
 
 1. `git pull --rebase --autostash`
-2. 写入 AgentTracking 和匹配到的项目文档
-3. `git add` 仅添加本次触碰的文件
-4. `git commit -m "docs: 记录 agent 工作进展"`
-5. `git pull --rebase --autostash`
-6. `git push`
+2. 检查 AgentTracking 和匹配到的项目文档状态
+3. 写入 AgentTracking，并在项目文档未 dirty 时写入项目文档
+4. `git add` 仅添加本次触碰的文件
+5. `git commit -m "docs: 记录 agent 工作进展"`
+6. `git pull --rebase --autostash`
+7. `git push`
+
+默认 `git.dirty_target_policy = "append_tracking_skip_project"`：本周 AgentTracking 文件已有本地修改时仍继续追加；匹配项目文档已有本地修改时跳过项目文档但不阻塞主记录。需要旧的保守行为时可设为 `"strict"`。
 
 ### conventional-commit-zh
 

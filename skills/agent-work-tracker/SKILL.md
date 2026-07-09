@@ -54,6 +54,7 @@ weekly_report_dir = "Note/Work/TianYan/工作周报"
 [git]
 sync = true
 commit_message = "docs: 记录 agent 工作进展"
+dirty_target_policy = "append_tracking_skip_project"
 ```
 
 Supported environment variables:
@@ -65,6 +66,7 @@ Supported environment variables:
 - `AGENT_WORK_TRACKER_WEEKLY_REPORT_DIR`
 - `AGENT_WORK_TRACKER_GIT_SYNC`
 - `AGENT_WORK_TRACKER_COMMIT_MESSAGE`
+- `AGENT_WORK_TRACKER_DIRTY_TARGET_POLICY`
 
 ## Default Paths
 
@@ -118,13 +120,19 @@ JSON
 When Git sync is enabled, the script performs the required sync sequence:
 
 1. `git pull --rebase --autostash`
-2. write the weekly AgentTracking file and a matched existing project document
-3. `git add` only touched files
-4. `git commit -m "docs: 记录 agent 工作进展"`
-5. `git pull --rebase --autostash`
-6. `git push`
+2. inspect the weekly AgentTracking file and matched project document
+3. write the weekly AgentTracking file, and write the matched project document only when it is safe
+4. `git add` only touched files
+5. `git commit -m "docs: 记录 agent 工作进展"`
+6. `git pull --rebase --autostash`
+7. `git push`
 
-If a target file already has local changes before writing, stop and report the issue. Do not stage unrelated Obsidian changes.
+Default dirty target policy:
+
+- `append_tracking_skip_project`: append to the weekly AgentTracking file even when it already has local changes; if the matched project document already has local changes before writing, skip that project document for this run and still record AgentTracking.
+- `strict`: preserve the old behavior; if any target file already has local changes before writing, stop and report the issue.
+
+Do not stage unrelated Obsidian changes.
 
 ## Project Document Policy
 

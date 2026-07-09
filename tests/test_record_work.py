@@ -32,9 +32,9 @@ class FakeGit:
 
     def run(self, repo, args, check=True, capture_output=False):
         self.commands.append(list(args))
-        if args[:1] == ["status"]:
+        if "status" in args:
             return subprocess.CompletedProcess(args, 0, self.dirty_output, "")
-        if args[:1] == ["diff"]:
+        if "diff" in args:
             return subprocess.CompletedProcess(args, 1, "", "")
         return subprocess.CompletedProcess(args, 0, "", "")
 
@@ -108,6 +108,82 @@ class RecordWorkTests(unittest.TestCase):
                 git=git,
             )
 
+    def test_dirty_tracking_is_appended_and_dirty_project_doc_is_skipped(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            vault = Path(tmp)
+            tracking_dir = vault / "Note/Work/TianYan/AgentTracking"
+            project_dir = vault / "Note/Work/TianYan/项目文档"
+            tracking_dir.mkdir(parents=True)
+            project_dir.mkdir(parents=True)
+            tracking_file = tracking_dir / "2026-05-22 Agent Tracking.md"
+            project_doc = project_dir / "AgentTracking.md"
+            tracking_file.write_text("# Existing Tracking\n", encoding="utf-8")
+            project_doc.write_text("# AgentTracking\n", encoding="utf-8")
+            git = FakeGit(
+                dirty_output=(
+                    " M Note/Work/TianYan/AgentTracking/2026-05-22 Agent Tracking.md\n"
+                    " M Note/Work/TianYan/项目文档/AgentTracking.md\n"
+                )
+            )
+
+            result = module.record_workflow(
+                {
+                    "title": "追加 dirty tracking 测试",
+                    "status": "completed",
+                    "repo": "/home/yanxin/personal/skills",
+                    "project": "AgentTracking",
+                    "summary": "验证目标文件 dirty 时仍写入主追踪记录。",
+                },
+                vault_root=vault,
+                tracking_dir=tracking_dir,
+                project_doc_dir=project_dir,
+                today=date(2026, 5, 22),
+                recorded_at="2026-05-22 18:30",
+                git=git,
+            )
+
+            self.assertEqual(result["status"], "committed")
+            self.assertEqual(result["project_doc_status"], "skipped_dirty")
+            self.assertIn("追加 dirty tracking 测试", tracking_file.read_text(encoding="utf-8"))
+            self.assertEqual("# AgentTracking\n", project_doc.read_text(encoding="utf-8"))
+            self.assertIn(
+                [
+                    "add",
+                    "--",
+                    "Note/Work/TianYan/AgentTracking/2026-05-22 Agent Tracking.md",
+                ],
+                git.commands,
+            )
+
+    def test_strict_dirty_policy_raises_for_dirty_tracking(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            vault = Path(tmp)
+            tracking_dir = vault / "Note/Work/TianYan/AgentTracking"
+            tracking_dir.mkdir(parents=True)
+            (tracking_dir / "2026-05-22 Agent Tracking.md").write_text(
+                "# Existing Tracking\n",
+                encoding="utf-8",
+            )
+            git = FakeGit(
+                dirty_output=" M Note/Work/TianYan/AgentTracking/2026-05-22 Agent Tracking.md\n"
+            )
+
+            with self.assertRaisesRegex(RuntimeError, "target files already have local changes"):
+                module.record_workflow(
+                    {
+                        "title": "严格模式 dirty 测试",
+                        "summary": "验证 strict 策略保留旧行为。",
+                    },
+                    vault_root=vault,
+                    tracking_dir=tracking_dir,
+                    today=date(2026, 5, 22),
+                    recorded_at="2026-05-22 18:30",
+                    git=git,
+                    dirty_target_policy=module.DIRTY_POLICY_STRICT,
+                )
+
     def test_record_workflow_uses_required_git_command_order(self):
         module = load_module()
         with tempfile.TemporaryDirectory() as tmp:
@@ -139,11 +215,14 @@ class RecordWorkTests(unittest.TestCase):
             )
 
             self.assertEqual(result["status"], "committed")
+            self.assertEqual(result["project_doc_status"], "updated")
             self.assertEqual(
                 git.commands,
                 [
                     ["pull", "--rebase", "--autostash"],
                     [
+                        "-c",
+                        "core.quotePath=false",
                         "status",
                         "--porcelain",
                         "--",
