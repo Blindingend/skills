@@ -1,6 +1,6 @@
 ---
 name: write-chinese
-description: "Write, rewrite, edit, or review Chinese text with concise, specific, non-exaggerated wording. Use when Codex needs to generate Chinese prose, polish Chinese copy, translate intent into Chinese, write Chinese UI text, draft Chinese summaries, or check Chinese writing for empty modifiers, fake contrasts, vague metaphors, inflated claims, and uncommon wording."
+description: "Write, rewrite, edit, or review Chinese text with concise, specific, non-exaggerated wording. Use when Codex needs to generate or polish Chinese prose, technical plans, design docs, implementation plans, engineering notes, troubleshooting writeups, PR descriptions, weekly reports, UI copy, summaries, or any Chinese documentation; also use to check Chinese writing for empty modifiers, fake contrasts, vague metaphors, inflated claims, and uncommon wording."
 ---
 
 # Write Chinese
