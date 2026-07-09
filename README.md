@@ -28,7 +28,11 @@
 │       ├── assets/
 │       ├── references/
 │       └── scripts/
-│   └── orchestrated-worktree-implementation/
+│   ├── orchestrated-worktree-implementation/
+│   │   ├── SKILL.md
+│   │   └── agents/
+│   │       └── openai.yaml
+│   └── write-chinese/
 │       ├── SKILL.md
 │       └── agents/
 │           └── openai.yaml
@@ -129,6 +133,17 @@ skills/dev-machine-bootstrap/scripts/apply_bootstrap.sh --mode user --dry-run lo
 - subagent 在独立 worktree/branch 中实现、commit、push，避免污染当前 worktree。
 - review 通过后才合并；不通过则给出明确标准继续迭代。
 
+### write-chinese
+
+路径：`skills/write-chinese/`
+
+用途：
+
+- 生成、润色、改写或审校中文文本。
+- 写中文 UI 文案、提示、错误信息、空状态和设置项名称。
+- 用删除测试检查空修饰、假对立、夸大、黑话、花哨比喻和少见词。
+- 保持表达清楚、具体、克制，避免用语气替代事实或逻辑。
+
 ## 安装方式
 
 推荐把整个仓库作为总入口 skill 软链到 Codex skills 目录：
@@ -181,4 +196,5 @@ python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.
 python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/conventional-commit-zh
 python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/dev-machine-bootstrap
 python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/orchestrated-worktree-implementation
+python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/write-chinese
 ```

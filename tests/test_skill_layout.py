@@ -43,6 +43,13 @@ class SkillLayoutTests(unittest.TestCase):
         self.assertTrue((skill / "agents/openai.yaml").is_file())
         self.assertFalse((ROOT / "orchestrated-worktree-implementation/SKILL.md").exists())
 
+    def test_write_chinese_is_sub_skill(self):
+        skill = ROOT / "skills/write-chinese"
+
+        self.assertTrue((skill / "SKILL.md").is_file())
+        self.assertTrue((skill / "agents/openai.yaml").is_file())
+        self.assertFalse((ROOT / "write-chinese/SKILL.md").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,4 @@
+interface:
+  display_name: "中文写作"
+  short_description: "按删除测试生成清楚、克制、可追问的中文文本写作规则"
+  default_prompt: "Use $write-chinese to 把这段中文改写得清楚、具体、克制。"

@@ -16,6 +16,7 @@ The bundled sub-skills live in `skills/`:
 - `skills/dev-machine-bootstrap/`
 - `skills/efficient-semantic-implementation/`
 - `skills/orchestrated-worktree-implementation/`
+- `skills/write-chinese/`
 
 ## Routing Rules
 
@@ -29,5 +30,6 @@ Choose the closest matching sub-skill:
 - classifying reusable dotfiles or preparing safe zsh, tmux, git, pixi, and alias setup -> `skills/dev-machine-bootstrap/`
 - implementing non-trivial backend, C++, data pipeline, stateful, storage, cache, hot-path, or multi-step code where semantic modeling, planning, low-copy data reuse, efficient data structures, ownership, and existing component reuse matter -> `skills/efficient-semantic-implementation/`
 - implementing an already designed coding task with subagents, isolated worktrees, review gates, merge, verification, and cleanup -> `skills/orchestrated-worktree-implementation/`
+- generating, rewriting, editing, reviewing, or polishing Chinese prose or UI copy with concise, concrete, non-exaggerated wording -> `skills/write-chinese/`
 
 If a task clearly belongs to a bundled sub-skill, use that sub-skill and stop treating `yx-workflow` as the main procedure.
