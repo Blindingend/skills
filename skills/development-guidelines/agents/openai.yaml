@@ -1,0 +1,4 @@
+interface:
+  display_name: "Development Guidelines"
+  short_description: "Apply reusable software development standards"
+  default_prompt: "Use $development-guidelines to implement or review this code against my development standards."

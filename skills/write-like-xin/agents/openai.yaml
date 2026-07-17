@@ -1,0 +1,11 @@
+interface:
+  display_name: "Xin 的写作风格"
+  short_description: "按 Xin 确认的写作风格起草、修改和校准各类中文内容"
+  default_prompt: "Use $write-like-xin to revise this Chinese draft in my confirmed writing style."
+policy:
+  products:
+    - "chatgpt"
+    - "codex"
+    - "api"
+    - "atlas"
+  allow_implicit_invocation: true

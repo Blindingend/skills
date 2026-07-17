@@ -1,6 +1,6 @@
 # yx-workflow
 
-`yx-workflow` 是个人 Codex workflow 仓库的总入口。这个仓库用于沉淀可复用的 agent 工作流，例如工作记录、Obsidian 周报素材整理，以及后续可能加入的个人自动化流程。
+`yx-workflow` 是个人 Codex workflow 仓库的总入口。这个仓库用于沉淀可复用的 agent 工作流，例如工作记录、Obsidian 周报素材整理、实现与命名规范，以及后续可能加入的个人自动化流程。
 
 ## 目录结构
 
@@ -22,17 +22,29 @@
 │   │   └── agents/
 │   │       └── openai.yaml
 │   ├── dev-machine-bootstrap/
-│       ├── SKILL.md
-│       ├── agents/
-│       │   └── openai.yaml
-│       ├── assets/
-│       ├── references/
-│       └── scripts/
+│   │   ├── SKILL.md
+│   │   ├── agents/
+│   │   │   └── openai.yaml
+│   │   ├── assets/
+│   │   ├── references/
+│   │   └── scripts/
+│   ├── development-guidelines/
+│   │   ├── SKILL.md
+│   │   ├── agents/
+│   │   │   └── openai.yaml
+│   │   └── references/
+│   │       └── boolean-naming.md
+│   ├── efficient-semantic-implementation/
+│   │   └── SKILL.md
 │   ├── orchestrated-worktree-implementation/
 │   │   ├── SKILL.md
 │   │   └── agents/
 │   │       └── openai.yaml
-│   └── write-chinese/
+│   ├── write-chinese/
+│   │   ├── SKILL.md
+│   │   └── agents/
+│   │       └── openai.yaml
+│   └── write-like-xin/
 │       ├── SKILL.md
 │       └── agents/
 │           └── openai.yaml
@@ -61,7 +73,7 @@
 记录脚本：
 
 ```bash
-python3 /home/yanxin/.codex/skills/yx-workflow/skills/agent-work-tracker/scripts/record_work.py
+python3 /mnt/c/Users/xin.yan/.codex/skills/yx-workflow/skills/agent-work-tracker/scripts/record_work.py
 ```
 
 默认配置路径：
@@ -74,7 +86,7 @@ python3 /home/yanxin/.codex/skills/yx-workflow/skills/agent-work-tracker/scripts
 
 ```bash
 mkdir -p ~/.config/yx-workflow
-cp /home/yanxin/.codex/skills/yx-workflow/skills/agent-work-tracker/config.example.toml ~/.config/yx-workflow/config.toml
+cp /mnt/c/Users/xin.yan/.codex/skills/yx-workflow/skills/agent-work-tracker/config.example.toml ~/.config/yx-workflow/config.toml
 ```
 
 配置优先级：
@@ -125,6 +137,17 @@ skills/dev-machine-bootstrap/scripts/plan_bootstrap.sh localhost
 skills/dev-machine-bootstrap/scripts/apply_bootstrap.sh --mode user --dry-run localhost
 ```
 
+### development-guidelines
+
+路径：`skills/development-guidelines/`
+
+用途：
+
+- 作为可持续扩展的通用开发规范 skill set。
+- 主 `SKILL.md` 负责规范选择和应用流程，具体主题拆到 `references/`，避免每条规则各建一个 skill。
+- 当前包含布尔变量命名规范：按状态、包含关系、能力和意图区分 `is`、`has`、`can`、`should`，并避免模糊命名和双重否定。
+- 后续新增规范时，增加对应的 reference 并更新目录，不复制已有规则。
+
 ### orchestrated-worktree-implementation
 
 路径：`skills/orchestrated-worktree-implementation/`
@@ -147,24 +170,34 @@ skills/dev-machine-bootstrap/scripts/apply_bootstrap.sh --mode user --dry-run lo
 - 用删除测试检查空修饰、假对立、夸大、黑话、花哨比喻和少见词。
 - 保持表达清楚、具体、克制，避免用语气替代事实或逻辑。
 
+### write-like-xin
+
+路径：`skills/write-like-xin/`
+
+用途：
+
+- 按 Xin 已确认的个人风格起草和修改中文内容。
+- 覆盖聊天回复、技术解释、比较、计划、正式邮件和公开文章。
+- 保留事实、约束、不确定性和文体边界，不为补全表达而虚构依据或承诺。
+
 ## 安装方式
 
 推荐把整个仓库作为总入口 skill 软链到 Codex skills 目录：
 
 ```bash
-ln -s /home/yanxin/personal/skills /home/yanxin/.codex/skills/yx-workflow
+ln -s /home/yx/Personal/skill /mnt/c/Users/xin.yan/.codex/skills/yx-workflow
 ```
 
 当前预期软链状态：
 
 ```text
-/home/yanxin/.codex/skills/yx-workflow -> /home/yanxin/personal/skills
+/mnt/c/Users/xin.yan/.codex/skills/yx-workflow -> /home/yx/Personal/skill
 ```
 
 如果已有同名路径，先确认它指向正确目录，不要覆盖其他已有 skill 软链。
 
 ```bash
-readlink -f /home/yanxin/.codex/skills/yx-workflow
+readlink -f /mnt/c/Users/xin.yan/.codex/skills/yx-workflow
 ```
 
 新增或调整 skill 后，通常需要重启 Codex 才能让新的 skill 元数据在后续会话中加载。
@@ -194,10 +227,12 @@ python3 -m py_compile skills/agent-work-tracker/scripts/record_work.py
 校验根入口和子 skill：
 
 ```bash
-python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills
-python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/agent-work-tracker
-python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/conventional-commit-zh
-python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/dev-machine-bootstrap
-python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/orchestrated-worktree-implementation
-python3 /home/yanxin/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yanxin/personal/skills/skills/write-chinese
+python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill
+python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/agent-work-tracker
+python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/conventional-commit-zh
+python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/dev-machine-bootstrap
+python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/development-guidelines
+python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/orchestrated-worktree-implementation
+python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/write-chinese
+python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/write-like-xin
 ```

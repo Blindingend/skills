@@ -1,6 +1,6 @@
 ---
 name: yx-workflow
-description: Use when working with Yanxin's reusable Codex workflows, including agent work tracking, Obsidian work notes, weekly reports, and personal automation routines.
+description: Use when working with Yanxin's reusable Codex workflows, including agent work tracking, Obsidian work notes, weekly reports, development guidelines, Chinese writing, and personal automation routines.
 ---
 
 # yx-workflow
@@ -14,9 +14,11 @@ The bundled sub-skills live in `skills/`:
 - `skills/agent-work-tracker/`
 - `skills/conventional-commit-zh/`
 - `skills/dev-machine-bootstrap/`
+- `skills/development-guidelines/`
 - `skills/efficient-semantic-implementation/`
 - `skills/orchestrated-worktree-implementation/`
 - `skills/write-chinese/`
+- `skills/write-like-xin/`
 
 ## Routing Rules
 
@@ -28,8 +30,10 @@ Choose the closest matching sub-skill:
 - summarizing staged changes into a commit message or aligning with a repository's commit history -> `skills/conventional-commit-zh/`
 - inspecting, planning, or applying a Linux developer terminal bootstrap for local or SSH hosts -> `skills/dev-machine-bootstrap/`
 - classifying reusable dotfiles or preparing safe zsh, tmux, git, pixi, and alias setup -> `skills/dev-machine-bootstrap/`
+- implementing, reviewing, refactoring, or naming code that should follow Xin's reusable development standards, including Boolean naming -> `skills/development-guidelines/`
 - implementing non-trivial backend, C++, data pipeline, stateful, storage, cache, hot-path, or multi-step code where semantic modeling, planning, low-copy data reuse, efficient data structures, ownership, and existing component reuse matter -> `skills/efficient-semantic-implementation/`
 - implementing an already designed coding task with subagents, isolated worktrees, review gates, merge, verification, and cleanup -> `skills/orchestrated-worktree-implementation/`
 - generating, rewriting, editing, reviewing, or polishing Chinese prose or UI copy with concise, concrete, non-exaggerated wording -> `skills/write-chinese/`
+- drafting or revising Chinese content specifically in Xin's confirmed personal style -> `skills/write-like-xin/`
 
 If a task clearly belongs to a bundled sub-skill, use that sub-skill and stop treating `yx-workflow` as the main procedure.
