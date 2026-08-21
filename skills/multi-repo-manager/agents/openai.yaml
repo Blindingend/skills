@@ -1,0 +1,4 @@
+interface:
+  display_name: "Multi-Repo Manager"
+  short_description: "管理文档驱动的跨仓库需求、基线、开发位置和交付状态"
+  default_prompt: "Use $multi-repo-manager to audit or advance this cross-repository requirement workspace."
