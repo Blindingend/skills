@@ -1,0 +1,4 @@
+interface:
+  display_name: "Trade Dev"
+  short_description: "在交易系统开发与代码审查中应用领域规范和交易日处理约定"
+  default_prompt: "Use $trade-dev to implement or review this trading-system change against my domain conventions."

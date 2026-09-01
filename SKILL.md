@@ -18,6 +18,7 @@ The bundled sub-skills live in `skills/`:
 - `skills/efficient-semantic-implementation/`
 - `skills/multi-repo-manager/`
 - `skills/orchestrated-worktree-implementation/`
+- `skills/trade-dev/`
 - `skills/write-chinese/`
 - `skills/write-like-xin/`
 
@@ -35,6 +36,7 @@ Choose the closest matching sub-skill:
 - implementing non-trivial backend, C++, data pipeline, stateful, storage, cache, hot-path, or multi-step code where semantic modeling, planning, low-copy data reuse, efficient data structures, ownership, and existing component reuse matter -> `skills/efficient-semantic-implementation/`
 - auditing, registering, advancing, closing, or bootstrapping a document-driven cross-repository requirement workspace with `requirements/`, `repos/` submodules, and repository-local development worktrees -> `skills/multi-repo-manager/`
 - implementing an already designed coding task with subagents, isolated worktrees, review gates, merge, verification, and cleanup -> `skills/orchestrated-worktree-implementation/`
+- implementing or reviewing trading-system behavior involving trade dates, offline replay, backtests, online market data, or date configuration -> `skills/trade-dev/`
 - generating, rewriting, editing, reviewing, or polishing Chinese prose or UI copy with concise, concrete, non-exaggerated wording -> `skills/write-chinese/`
 - drafting or revising Chinese content specifically in Xin's confirmed personal style -> `skills/write-like-xin/`
 
