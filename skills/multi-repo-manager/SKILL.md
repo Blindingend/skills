@@ -13,7 +13,8 @@ The parent is a requirement control plane, not a business-code repository. Docum
 
 1. Read the request, parent instructions, README, template, requirements, `.gitmodules`, and Git/worktree state.
 2. Read child instructions before choosing branches, tests, or delivery.
-3. Classify the request as `bootstrap`, `audit`, `register`, `advance`, or `close`.
+3. Classify the request as `bootstrap`, `audit`, `register`, `advance`, `close`,
+   or `update-manager-state`.
 
 User and local instructions override this skill. Report conflicts before mutation. Read-only requests cannot mutate files, refs, worktrees, commits, MRs, or remotes.
 
@@ -59,10 +60,42 @@ Work only in development worktrees. Synchronize actual commits, reviews, verific
 
 Verify delivery against fetched targets. Record evidence and unverified scope. Mark eligible worktrees ready for cleanup; remove them only with separate explicit cleanup authorization. Preserve the requirement directory.
 
+### Update Manager State
+
+Treat an explicit request to "update the manager repo state" as authorization
+to complete the related requirement's full local closeout:
+
+1. Clean up local worktrees that are no longer needed.
+2. Update the requirement record with delivered, pending, unverified, cleanup,
+   and repository state.
+3. Fast-forward each related submodule checkout to its recorded remote branch
+   and stage the resulting gitlink update in the parent repository.
+
+Before removing a worktree, resolve its exact registered path, verify that it is
+clean, and confirm its commit is contained in the delivered target or is
+patch-equivalent to an integrated commit. Preserve dirty worktrees and branches
+with unique unmerged work, and record why they were not removed.
+
+Before updating a submodule, fetch its recorded remote branch and verify that
+the main checkout has no tracked or unrelated untracked changes that could
+interfere. Registered `.worktree/` directories alone are not business changes.
+Use a fast-forward-only update such as `git pull --ff-only origin <branch>`; do
+not reset, force-update, or silently switch branches. Update only submodules
+related to the requirement. Record the fetched full SHA and the final gitlink
+in the requirement document.
+
+The request authorizes removal of eligible related worktrees and updating the
+related gitlinks. It does not authorize deleting local or remote branches,
+cleaning unrelated worktrees, or changing unrelated submodules. If a worktree
+or submodule cannot be updated safely, complete the other safe items and report
+the exact remaining state.
+
 ## Delivery Safety
 
 - Preserve unrelated dirty files. Stage only requirement-owned paths or hunks; if an authorized file overlaps unrelated edits that cannot be isolated safely, stop and report it.
 - Do not overwrite existing branches or worktrees.
 - Before cleanup, resolve the registered path and check dirty state, HEAD, and target containment. Do not use force or recursive deletion as routine cleanup.
+- A request to update manager repo state is explicit cleanup and gitlink-update
+  authorization only within the related requirement, as defined above.
 - Parent commit/push is in scope only for an authorized mutating lifecycle action whose repository instructions require direct-main delivery.
 - After delivery, verify the pushed remote SHA before reporting completion.

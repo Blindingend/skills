@@ -173,6 +173,8 @@ skills/dev-machine-bootstrap/scripts/apply_bootstrap.sh --mode user --dry-run lo
 - 区分父仓库 direct-main、reference 仓库只读入口和 development 仓库 worktree。
 - 登记并持续更新基线、分支、提交、MR、验证、阻塞和收尾状态。
 - 在不引入额外状态系统的前提下初始化、审计、推进或关闭需求。
+- “更新 manager repo 状态”时，清理已不用的安全 worktree、更新需求记录，并将相关
+  submodule 快进到记录的远端分支后提交 gitlink。
 
 ### write-chinese
 
