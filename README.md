@@ -40,10 +40,6 @@
 │   │   ├── SKILL.md
 │   │   └── agents/
 │   │       └── openai.yaml
-│   ├── multi-repo-manager/
-│   │   ├── SKILL.md
-│   │   └── agents/
-│   │       └── openai.yaml
 │   ├── write-chinese/
 │   │   ├── SKILL.md
 │   │   └── agents/
@@ -163,19 +159,6 @@ skills/dev-machine-bootstrap/scripts/apply_bootstrap.sh --mode user --dry-run lo
 - subagent 在独立 worktree/branch 中实现、commit、push，避免污染当前 worktree。
 - review 通过后才合并；不通过则给出明确标准继续迭代。
 
-### multi-repo-manager
-
-路径：`skills/multi-repo-manager/`
-
-用途：
-
-- 管理使用 `requirements/` 和 `repos/` submodule 的跨仓库需求工作区。
-- 区分父仓库 direct-main、reference 仓库只读入口和 development 仓库 worktree。
-- 登记并持续更新基线、分支、提交、MR、验证、阻塞和收尾状态。
-- 在不引入额外状态系统的前提下初始化、审计、推进或关闭需求。
-- “更新 manager repo 状态”时，清理已不用的安全 worktree、更新需求记录，并将相关
-  submodule 快进到记录的远端分支后提交 gitlink。
-
 ### write-chinese
 
 路径：`skills/write-chinese/`
@@ -249,7 +232,6 @@ python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_v
 python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/conventional-commit-zh
 python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/dev-machine-bootstrap
 python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/development-guidelines
-python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/multi-repo-manager
 python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/orchestrated-worktree-implementation
 python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/write-chinese
 python3 /mnt/c/Users/xin.yan/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/yx/Personal/skill/skills/write-like-xin

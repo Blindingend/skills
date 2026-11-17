@@ -67,24 +67,6 @@ class SkillLayoutTests(unittest.TestCase):
         self.assertTrue((skill / "agents/openai.yaml").is_file())
         self.assertFalse((ROOT / "write-like-xin/SKILL.md").exists())
 
-    def test_multi_repo_manager_is_sub_skill(self):
-        skill = ROOT / "skills/multi-repo-manager"
-
-        self.assertTrue((skill / "SKILL.md").is_file())
-        self.assertTrue((skill / "agents/openai.yaml").is_file())
-        content = (skill / "SKILL.md").read_text(encoding="utf-8")
-        metadata = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
-        self.assertIn("### Audit", content)
-        self.assertIn("explicit cleanup authorization", content)
-        self.assertIn('display_name: "Multi-Repo Manager"', metadata)
-        self.assertIn("$multi-repo-manager", metadata)
-        self.assertIn(
-            "skills/multi-repo-manager/",
-            (ROOT / "SKILL.md").read_text(encoding="utf-8"),
-        )
-        self.assertIn("### multi-repo-manager", (ROOT / "README.md").read_text())
-        self.assertFalse((ROOT / "multi-repo-manager/SKILL.md").exists())
-
 
 if __name__ == "__main__":
     unittest.main()
